@@ -1,0 +1,460 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LSMMS | Server Control Center</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<input class="tab-radio" type="radio" name="page" id="tab-overview"
+       {% if request.args.get('view', 'overview') == 'overview' %}checked{% endif %}>
+<input class="tab-radio" type="radio" name="page" id="tab-monitoring"
+       {% if request.args.get('view') == 'monitoring' %}checked{% endif %}>
+<input class="tab-radio" type="radio" name="page" id="tab-services"
+       {% if request.args.get('view') == 'services' %}checked{% endif %}>
+<input class="tab-radio" type="radio" name="page" id="tab-backups"
+       {% if request.args.get('view') == 'backups' %}checked{% endif %}>
+<input class="tab-radio" type="radio" name="page" id="tab-reports"
+       {% if request.args.get('view') == 'reports' %}checked{% endif %}>
+<input class="tab-radio" type="radio" name="page" id="tab-history"
+       {% if request.args.get('view') == 'history' %}checked{% endif %}>
+
+<div class="app-shell">
+
+    <aside class="sidebar">
+        <a class="brand" href="{{ url_for('home', view='overview') }}">
+            <span class="brand-mark">L</span>
+            <span>
+                <strong>LSMMS</strong>
+                <small>SERVER CONTROL CENTER</small>
+            </span>
+        </a>
+
+        <p class="nav-label">WORKSPACE</p>
+
+        <nav class="navigation">
+            <label class="nav-item nav-overview" for="tab-overview">
+                <span class="nav-number">01</span> Overview
+            </label>
+            <label class="nav-item nav-monitoring" for="tab-monitoring">
+                <span class="nav-number">02</span> Monitoring
+            </label>
+            <label class="nav-item nav-services" for="tab-services">
+                <span class="nav-number">03</span> Services
+            </label>
+            <label class="nav-item nav-backups" for="tab-backups">
+                <span class="nav-number">04</span> Backups
+            </label>
+            <label class="nav-item nav-reports" for="tab-reports">
+                <span class="nav-number">05</span> Reports
+            </label>
+            <label class="nav-item nav-history" for="tab-history">
+                <span class="nav-number">06</span> History
+            </label>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span class="online-dot"></span>
+            <div>
+                <strong>LSMMS Lab</strong>
+                <small>Debian server</small>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">LINUX SERVER OPERATIONS</p>
+                <h1>LSMMS Dashboard</h1>
+                <p class="muted">Monitor, manage and protect your Linux server.</p>
+            </div>
+
+            <div class="server-badge">
+                <span class="online-dot"></span>
+                <span>
+                    <strong>lsmms-server</strong>
+                    <small>Debian GNU/Linux 13</small>
+                </span>
+            </div>
+        </header>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-message">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- OVERVIEW -->
+
+        <section class="view view-overview">
+            <div class="welcome-panel">
+                <p class="eyebrow">SERVER CONTROL CENTER</p>
+                <h2>Your Linux server, one workspace.</h2>
+                <p>
+                    Monitor system health, manage services, create backups,
+                    generate reports and review monitoring history.
+                </p>
+
+                <div class="overview-links">
+                    <label class="button" for="tab-monitoring">View Monitoring</label>
+                    <label class="button button-secondary" for="tab-services">Manage Services</label>
+                </div>
+            </div>
+
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">QUICK SUMMARY</p>
+                    <h2>Project Overview</h2>
+                </div>
+            </div>
+
+            <div class="summary-grid">
+                <article class="summary-card">
+                    <span class="summary-icon icon-blue">MON</span>
+                    <p>Monitoring Types</p>
+                    <h3>{{ latest|length }}</h3>
+                    <small>Types with saved readings</small>
+                </article>
+
+                <article class="summary-card">
+                    <span class="summary-icon icon-green">BAK</span>
+                    <p>Backup Archives</p>
+                    <h3>{{ backup_files|length }}</h3>
+                    <small>Available backup files</small>
+                </article>
+
+                <article class="summary-card">
+                    <span class="summary-icon icon-purple">RPT</span>
+                    <p>System Reports</p>
+                    <h3>{{ report_files|length }}</h3>
+                    <small>Available report files</small>
+                </article>
+
+                <article class="summary-card">
+                    <span class="summary-icon icon-orange">DB</span>
+                    <p>Recent Records</p>
+                    <h3>{{ logs|length }}</h3>
+                    <small>Records shown from SQLite</small>
+                </article>
+            </div>
+
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">SHORTCUTS</p>
+                    <h2>Server Operations</h2>
+                </div>
+            </div>
+
+            <div class="shortcut-grid">
+                <label class="shortcut-card" for="tab-monitoring">
+                    <span class="shortcut-symbol">01</span>
+                    <strong>System Monitoring</strong>
+                    <small>View CPU, RAM, disk and service output</small>
+                    <span class="shortcut-link">Open Monitoring →</span>
+                </label>
+
+                <label class="shortcut-card" for="tab-services">
+                    <span class="shortcut-symbol">02</span>
+                    <strong>Service Management</strong>
+                    <small>Control the configured cron service</small>
+                    <span class="shortcut-link">Open Services →</span>
+                </label>
+
+                <label class="shortcut-card" for="tab-backups">
+                    <span class="shortcut-symbol">03</span>
+                    <strong>Project Backups</strong>
+                    <small>Create and download backup archives</small>
+                    <span class="shortcut-link">Open Backups →</span>
+                </label>
+
+                <label class="shortcut-card" for="tab-reports">
+                    <span class="shortcut-symbol">04</span>
+                    <strong>System Reports</strong>
+                    <small>Generate and download reports</small>
+                    <span class="shortcut-link">Open Reports →</span>
+                </label>
+            </div>
+        </section>
+
+        <!-- MONITORING -->
+
+        <section class="view view-monitoring">
+            <div class="page-title">
+                <p class="eyebrow">SERVER HEALTH</p>
+                <h2>System Monitoring</h2>
+                <p class="muted">
+                    Refresh individual cards or collect all monitoring data together.
+                </p>
+            </div>
+
+            <div class="section-heading">
+                <div>
+                    <h2>Monitoring Results</h2>
+                    <p class="muted">Successful readings are saved to SQLite.</p>
+                </div>
+
+                <form method="post" action="{{ url_for('run_all_monitoring') }}">
+                    <input type="hidden" name="view" value="monitoring">
+                    <button class="button" type="submit">↻ Refresh All Data</button>
+                </form>
+            </div>
+
+            <div class="monitoring-grid">
+                {% for item in monitoring_items %}
+                    <article class="monitor-card">
+                        <div class="monitor-card-top">
+                            <span class="type-badge type-{{ item.type }}">
+                                {{ item.type|upper }}
+                            </span>
+
+                            <form method="post"
+                                  action="{{ url_for('run_monitoring', monitoring_type=item.type) }}">
+                                <input type="hidden" name="view" value="monitoring">
+                                <button class="button button-small" type="submit">
+                                    ↻ Refresh
+                                </button>
+                            </form>
+                        </div>
+
+                        <h3>{{ item.title }}</h3>
+                        <p class="card-description">{{ item.description }}</p>
+
+                        {% if latest.get(item.type) %}
+                            <pre class="terminal-output">{{ latest[item.type].output }}</pre>
+                            <div class="card-meta">
+                                <span>Last saved</span>
+                                <time>{{ latest[item.type].created_at }}</time>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                No saved data yet. Click Refresh to collect information.
+                            </div>
+                        {% endif %}
+                    </article>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- SERVICES -->
+
+        <section class="view view-services">
+            <div class="page-title">
+                <p class="eyebrow">LINUX ADMINISTRATION</p>
+                <h2>Service Management</h2>
+                <p class="muted">Manage the service configured in the Bash script.</p>
+            </div>
+
+            <div class="action-card">
+                <div class="action-icon service-icon">SVC</div>
+
+                <div class="action-content">
+                    <h3>Cron Service</h3>
+                    <p>Start, stop or restart the configured cron service.</p>
+                    <p class="muted small-text">
+                        Administrative permissions are required.
+                    </p>
+                </div>
+
+                <form class="service-actions"
+                      method="post"
+                      action="{{ url_for('manage_service') }}"
+                      onsubmit="return confirm('Run the selected action on cron?')">
+
+                    <input type="hidden" name="view" value="services">
+
+                    <button class="button" name="action" value="start" type="submit">
+                        Start
+                    </button>
+                    <button class="button button-danger" name="action" value="stop" type="submit">
+                        Stop
+                    </button>
+                    <button class="button button-secondary" name="action" value="restart" type="submit">
+                        Restart
+                    </button>
+                </form>
+            </div>
+
+            <div class="info-panel">
+                <h3>Service Safety</h3>
+                <p>
+                    These controls are for cron only. SSH is monitored separately
+                    and is not offered as a stop or restart action here.
+                </p>
+            </div>
+        </section>
+
+        <!-- BACKUPS -->
+
+        <section class="view view-backups">
+            <div class="page-title">
+                <p class="eyebrow">DATA PROTECTION</p>
+                <h2>Backup Management</h2>
+                <p class="muted">Create and download compressed project backups.</p>
+            </div>
+
+            <div class="utility-card">
+                <div class="utility-heading">
+                    <span class="utility-icon backup-icon">BAK</span>
+                    <div>
+                        <h3>LSMMS Project Backup</h3>
+                        <p>Run the existing Bash backup script.</p>
+                    </div>
+                </div>
+
+                <form method="post"
+                      action="{{ url_for('run_backup') }}"
+                      onsubmit="return confirm('Create a new LSMMS backup?')">
+                    <input type="hidden" name="view" value="backups">
+                    <button class="button" type="submit">＋ Create Backup</button>
+                </form>
+
+                <div class="file-section">
+                    <div class="list-heading">
+                        <h3>Available Backups</h3>
+                        <span class="count-badge">{{ backup_files|length }} files</span>
+                    </div>
+
+                    {% if backup_files %}
+                        <ul class="file-list">
+                            {% for filename in backup_files %}
+                                <li>
+                                    <span class="file-name">
+                                        <span class="file-symbol">TGZ</span>
+                                        {{ filename }}
+                                    </span>
+                                    <a class="download-link"
+                                       href="{{ url_for('download_file', file_type='backup', filename=filename) }}">
+                                        Download ↓
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="empty-state">No backup files found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- REPORTS -->
+
+        <section class="view view-reports">
+            <div class="page-title">
+                <p class="eyebrow">SYSTEM SUMMARIES</p>
+                <h2>Report Generation</h2>
+                <p class="muted">Create system reports using the existing Bash script.</p>
+            </div>
+
+            <div class="utility-card">
+                <div class="utility-heading">
+                    <span class="utility-icon report-icon">RPT</span>
+                    <div>
+                        <h3>System Report</h3>
+                        <p>Collect system, CPU, RAM and disk information.</p>
+                    </div>
+                </div>
+
+                <form method="post" action="{{ url_for('generate_report') }}">
+                    <input type="hidden" name="view" value="reports">
+                    <button class="button" type="submit">＋ Generate Report</button>
+                </form>
+
+                <div class="file-section">
+                    <div class="list-heading">
+                        <h3>Available Reports</h3>
+                        <span class="count-badge">{{ report_files|length }} files</span>
+                    </div>
+
+                    {% if report_files %}
+                        <ul class="file-list">
+                            {% for filename in report_files %}
+                                <li>
+                                    <span class="file-name">
+                                        <span class="file-symbol report-symbol">TXT</span>
+                                        {{ filename }}
+                                    </span>
+                                    <a class="download-link"
+                                       href="{{ url_for('download_file', file_type='report', filename=filename) }}">
+                                        Download ↓
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="empty-state">No report files found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- HISTORY -->
+
+        <section class="view view-history">
+            <div class="page-title">
+                <p class="eyebrow">SQLITE RECORDS</p>
+                <h2>Monitoring History</h2>
+                <p class="muted">Review recent saved monitoring results.</p>
+            </div>
+
+            <div class="history-card">
+                <div class="list-heading history-heading">
+                    <h3>Recent Records</h3>
+                    <span class="count-badge">{{ logs|length }} shown</span>
+                </div>
+
+                {% if logs %}
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Type</th>
+                                    <th>Date and Time</th>
+                                    <th>Output</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in logs %}
+                                    <tr>
+                                        <td>{{ log[0] }}</td>
+                                        <td>
+                                            <span class="history-type">{{ log[1]|upper }}</span>
+                                        </td>
+                                        <td>{{ log[3] }}</td>
+                                        <td>
+                                            <details>
+                                                <summary>View output</summary>
+                                                <pre class="terminal-output history-output">{{ log[2] }}</pre>
+                                            </details>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="empty-state">No monitoring records available yet.</p>
+                {% endif %}
+            </div>
+        </section>
+
+        <footer class="footer">
+            <span>LSMMS · Linux Server Monitoring and Management System</span>
+            <span>Local development dashboard</span>
+        </footer>
+
+    </main>
+</div>
+
+</body>
+</html>
